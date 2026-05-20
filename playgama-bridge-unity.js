@@ -136,14 +136,14 @@ function initializeBridge() {
             bridge.platform.on('pause_state_changed', isPaused => sendMessageToUnity('OnPauseStateChanged', isPaused.toString()))
 
             let unityLoader = document.createElement('script')
-            unityLoader.src = 'Build/de20f721ec32512e2d3005562533ab04.loader.js'
+            unityLoader.src = 'Build/6a2709e130029cc8690341cf14d94fd1.loader.js'
             unityLoader.onload = () => {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/8e119137f77453bf337a124236b53b38.data.br',
-                        frameworkUrl: 'Build/33a1cd5ab0883fa698e8136ba1b0fcdf.framework.js.br',
-                        codeUrl: 'Build/a60f6981c7ef0ef56ce8549b92ad2ac4.wasm.br',
+                        dataUrl: 'Build/c50898b695727d005a2a5cc1d77027ea.data.unityweb',
+                        frameworkUrl: 'Build/33a1cd5ab0883fa698e8136ba1b0fcdf.framework.js.unityweb',
+                        codeUrl: 'Build/a60f6981c7ef0ef56ce8549b92ad2ac4.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',
