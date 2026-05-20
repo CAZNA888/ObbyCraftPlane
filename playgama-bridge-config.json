@@ -1,0 +1,76 @@
+{
+    "$schema": "https://bridge.playgama.com/v1/stable/schema.json",
+    "advertisement": {
+        "interstitial": {
+            "preloadOnStart": true
+        },
+        "rewarded": {
+            "preloadOnStart": true
+        },
+        "banner": {
+            "preloadOnStart": true,
+            "placementFallback": "banner_default",
+            "placements": [
+                {
+                    "id": "banner_default",
+                    "playgama": "banner_default",
+                    "yandex": "banner_default"
+                }
+            ]
+        },
+        "useBuiltInErrorPopup": true,
+        "backfillId": ""
+    },
+    "payments": [
+        {
+            "id": "1",
+            "playgama": {
+                "amount": 20
+            }
+        },
+        {
+            "id": "2",
+            "playgama": {
+                "amount": 90
+            }
+        },
+        {
+            "id": "3",
+            "playgama": {
+                "amount": 250
+            }
+        },
+        {
+            "id": "4",
+            "playgama": {
+                "amount": 500
+            }
+        },
+        {
+            "id": "5",
+            "playgama": {
+                "amount": 2000
+            }
+        },
+        {
+            "id": "6",
+            "playgama": {
+                "amount": 100
+            }
+        },
+        {
+            "id": "7",
+            "playgama": {
+                "amount": 20
+            }
+        },
+        {
+            "id": "8",
+            "playgama": {
+                "amount": 20
+            }
+        }
+    ],
+    "leaderboards": [],
+    "sendAnalyticsEvents": true
+}
