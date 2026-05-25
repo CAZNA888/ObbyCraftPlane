@@ -135,15 +135,74 @@ function initializeBridge() {
             bridge.platform.on('audio_state_changed', isEnabled => sendMessageToUnity('OnAudioStateChanged', isEnabled.toString()))
             bridge.platform.on('pause_state_changed', isPaused => sendMessageToUnity('OnPauseStateChanged', isPaused.toString()))
 
+            // iOS / Mobile: fallback для событий потери видимости (app switcher, сворачивание)
+            // VKWebAppViewHide / VKWebAppViewRestore приходят через VK Bridge SDK,
+            // но Playgama не всегда транслирует их через visibility_state_changed в C#.
+            // DOM events (visibilitychange, pagehide, pageshow) также не всегда работают на iOS WKWebView.
+            // Поэтому добавляем принудительный fallback: вызываем VK Bridge напрямую.
+            function onViewHide() {
+                // Пытаемся через VK Bridge — Playgama SDK подписан на его события
+                if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
+                    window.vkBridge.send('VKWebAppViewHide')
+                } else {
+                    // Если VK Bridge недоступен — используем прямой DOM fallback через SendMessage
+                    sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
+                }
+            }
+            function onViewShow() {
+                if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
+                    window.vkBridge.send('VKWebAppViewRestore')
+                } else {
+                    sendMessageToUnity('OnVisibilityStateChanged', 'visible')
+                }
+            }
+
+            if (typeof document !== 'undefined') {
+                document.addEventListener('visibilitychange', function () {
+                    if (document.hidden) {
+                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
+                            window.vkBridge.send('VKWebAppViewHide')
+                        } else {
+                            sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
+                        }
+                    } else {
+                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
+                            window.vkBridge.send('VKWebAppViewRestore')
+                        } else {
+                            sendMessageToUnity('OnVisibilityStateChanged', 'visible')
+                        }
+                    }
+                })
+                document.addEventListener('webkitvisibilitychange', function () {
+                    if (document.webkitHidden) {
+                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
+                            window.vkBridge.send('VKWebAppViewHide')
+                        } else {
+                            sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
+                        }
+                    } else {
+                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
+                            window.vkBridge.send('VKWebAppViewRestore')
+                        } else {
+                            sendMessageToUnity('OnVisibilityStateChanged', 'visible')
+                        }
+                    }
+                })
+            }
+            window.addEventListener('pagehide', onViewHide)
+            window.addEventListener('pageshow', onViewShow)
+            window.addEventListener('blur', onViewHide)
+            window.addEventListener('focus', onViewShow)
+
             let unityLoader = document.createElement('script')
-            unityLoader.src = 'Build/6a2709e130029cc8690341cf14d94fd1.loader.js'
+            unityLoader.src = 'Build/de20f721ec32512e2d3005562533ab04.loader.js'
             unityLoader.onload = () => {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/c50898b695727d005a2a5cc1d77027ea.data.unityweb',
-                        frameworkUrl: 'Build/33a1cd5ab0883fa698e8136ba1b0fcdf.framework.js.unityweb',
-                        codeUrl: 'Build/a60f6981c7ef0ef56ce8549b92ad2ac4.wasm.unityweb',
+                        dataUrl: 'Build/0fb9db2f64da811f7ddd4929c7a6ca33.data.br',
+                        frameworkUrl: 'Build/8c49f03c7a27682d08d53d6bac02c8b9.framework.js.br',
+                        codeUrl: 'Build/60e8cb3725cfd496410113791d1e2271.wasm.br',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',

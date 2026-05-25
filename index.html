@@ -3,30 +3,210 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
         <title>Build Your Plane</title>
         <link rel="preconnect" href="https://bridge.playgama.com">
-        <link rel="preload" href="Build/a60f6981c7ef0ef56ce8549b92ad2ac4.wasm.unityweb" as="fetch" type="application/wasm" crossorigin>
-        <link rel="preload" href="Build/c50898b695727d005a2a5cc1d77027ea.data.unityweb" as="fetch" crossorigin>
-        <link rel="preload" href="Build/33a1cd5ab0883fa698e8136ba1b0fcdf.framework.js.unityweb" as="script">
+        <link rel="preload" href="Build/60e8cb3725cfd496410113791d1e2271.wasm.br" as="fetch" type="application/wasm" crossorigin>
+        <link rel="preload" href="Build/0fb9db2f64da811f7ddd4929c7a6ca33.data.br" as="fetch" crossorigin>
+        <link rel="preload" href="Build/8c49f03c7a27682d08d53d6bac02c8b9.framework.js.br" as="script">
         <style>
+            :root {
+                --isl-vh: 1%;
+            }
+
             html, body {
                 width: 100%;
                 height: 100%;
-                padding: 0px;
-                margin: 0px;
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
             }
+
+            html.is-locked,
+            html.is-locked body {
+                overflow: hidden;
+                position: relative;
+                height: 100dvh;
+                overscroll-behavior: none;
+            }
+
+            .holder {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: min(calc(var(--isl-vh) * 100), 100%);
+                overflow: hidden;
+                z-index: 1;
+            }
+
+            html.is-locked .holder {
+                z-index: 2147483646;
+            }
+
+            .scroller {
+                display: block;
+                width: 100%;
+                height: 100%;
+                overflow-x: hidden;
+                overflow-y: auto;
+                overscroll-behavior: none;
+                scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .scroller-inner {
+                display: flex;
+                justify-content: flex-start;
+                align-items: stretch;
+                flex-direction: column;
+                height: calc(100% + 1px);
+                min-height: calc(100% + 1px);
+            }
+
+            .content {
+                display: flex;
+                justify-content: flex-start;
+                align-items: stretch;
+                flex-direction: column;
+                position: sticky;
+                width: 100%;
+                height: calc(100% - 1px);
+                top: 0;
+                bottom: 0;
+            }
+
             .fullscreen-canvas {
                 background: #242424;
                 width: 100%;
                 height: 100%;
                 position: absolute;
-                top: 0px;
-                left: 0px;
+                top: 0;
+                left: 0;
+                touch-action: none;
+            }
+
+            .overlay {
+                position: fixed;
+                inset: 0;
+                display: none;
+                align-items: flex-start;
+                justify-content: center;
+                padding: 12px env(safe-area-inset-right) 0 env(safe-area-inset-left);
+                z-index: 2147483647;
+                pointer-events: none;
+            }
+
+            .overlay.is-visible {
+                display: flex;
+            }
+
+            .bubble {
+                max-width: 80vw;
+                backdrop-filter: blur(8px);
+                background: rgba(0, 0, 0, 0.5);
+                color: #fff;
+                border-radius: 96px;
+                padding: 12px;
+                font-size: 14px;
+                pointer-events: auto;
+            }
+
+            .spacer {
+                display: none;
+                width: 1px;
+                height: 2000vh;
+            }
+
+            .spacer.is-visible {
+                display: block;
             }
         </style>
     </head>
     <body>
-        <canvas id="canvas" class="fullscreen-canvas"></canvas>
+        <div class="holder">
+            <div class="scroller">
+                <div class="scroller-inner">
+                    <div class="content" id="game-content">
+                        <canvas id="canvas" class="fullscreen-canvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="overlay">
+            <div class="bubble">Scroll down a bit to hide the browser bars and enjoy the full screen</div>
+        </div>
+        <div class="spacer"></div>
         <script src="./playgama-bridge-unity.js"></script>
+        <script>
+            (function () {
+                var overlay = document.querySelector('.overlay');
+                var spacer = document.querySelector('.spacer');
+                var gameCanvas = document.getElementById('canvas');
+                var gameContent = document.getElementById('game-content');
+                var tabsOpen = false;
+                var rafId = null;
+
+                function measure() {
+                    if (rafId !== null) {
+                        cancelAnimationFrame(rafId);
+                    }
+
+                    rafId = requestAnimationFrame(function () {
+                        document.documentElement.style.setProperty('--isl-vh', (window.innerHeight * 0.01) + 'px');
+
+                        var screenShort = Math.min(window.screen.width, window.screen.height);
+                        var viewport = window.visualViewport;
+                        var MOBILE_CHROME_TOP_BAR_HEIGHT = 20;
+                        var open = !!viewport && viewport.height + viewport.offsetTop < screenShort - MOBILE_CHROME_TOP_BAR_HEIGHT;
+
+                        if (open === tabsOpen) {
+                            return;
+                        }
+
+                        tabsOpen = open;
+
+                        window.setTimeout(function () {
+                            document.documentElement.classList.toggle('is-locked', !open);
+                            overlay.classList.toggle('is-visible', open);
+                            spacer.classList.toggle('is-visible', open);
+
+                            if (!open) {
+                                gameContent.appendChild(gameCanvas);
+                            } else {
+                                document.body.appendChild(gameCanvas);
+                            }
+
+                            Object.assign(gameCanvas.style, {
+                                position: open ? 'fixed' : 'absolute',
+                                inset: open ? '0' : 'auto',
+                                top: open ? '0' : '0',
+                                left: open ? '0' : '0',
+                                height: open ? '100dvh' : '100%',
+                                width: open ? '100vw' : '100%'
+                            });
+                        }, open ? 0 : 100);
+                    });
+                }
+
+                function initSafariTabsHider() {
+                    if (!window.navigator.userAgent.match(/(iPhone|iPad|iPod)/)) {
+                        return;
+                    }
+
+                    measure();
+                    window.addEventListener('resize', measure, { passive: true });
+                    window.addEventListener('orientationchange', measure, { passive: true });
+                    window.addEventListener('scroll', measure, { passive: true });
+
+                    if (window.visualViewport) {
+                        window.visualViewport.addEventListener('resize', measure, { passive: true });
+                        window.visualViewport.addEventListener('scroll', measure, { passive: true });
+                    }
+                }
+
+                initSafariTabsHider();
+            })();
+        </script>
     </body>
 </html>
