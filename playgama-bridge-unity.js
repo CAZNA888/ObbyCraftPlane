@@ -195,14 +195,14 @@ function initializeBridge() {
             window.addEventListener('focus', onViewShow)
 
             let unityLoader = document.createElement('script')
-            unityLoader.src = 'Build/6a2709e130029cc8690341cf14d94fd1.loader.js'
+            unityLoader.src = 'Build/78ecadbccbf419d31f18362248ca1676.loader.js'
             unityLoader.onload = () => {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/0520b5e1d0e0d428bf792e9afdaf4c54.data.unityweb',
-                        frameworkUrl: 'Build/2158fa75fe53c4110448290094fb4686.framework.js.unityweb',
-                        codeUrl: 'Build/f822d71c16481c025d364c103baf5ad2.wasm.unityweb',
+                        dataUrl: 'Build/ad1bd6a0926b1d9e306dddaa1567fe87.data.unityweb',
+                        frameworkUrl: 'Build/7f15632f49e10d5986db7ef6bb8b4783.framework.js.unityweb',
+                        codeUrl: 'Build/a14d6623cf856feb1bf08828691f2388.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',

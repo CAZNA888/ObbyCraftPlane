@@ -6,74 +6,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
         <title>Build Your Plane</title>
         <link rel="preconnect" href="https://bridge.playgama.com">
-        <link rel="preload" href="Build/f822d71c16481c025d364c103baf5ad2.wasm.unityweb" as="fetch" type="application/wasm" crossorigin>
-        <link rel="preload" href="Build/0520b5e1d0e0d428bf792e9afdaf4c54.data.unityweb" as="fetch" crossorigin>
-        <link rel="preload" href="Build/2158fa75fe53c4110448290094fb4686.framework.js.unityweb" as="script">
+        <link rel="preload" href="Build/a14d6623cf856feb1bf08828691f2388.wasm.unityweb" as="fetch" type="application/wasm" crossorigin>
+        <link rel="preload" href="Build/ad1bd6a0926b1d9e306dddaa1567fe87.data.unityweb" as="fetch" crossorigin>
+        <link rel="preload" href="Build/7f15632f49e10d5986db7ef6bb8b4783.framework.js.unityweb" as="script">
         <style>
-            :root {
-                --isl-vh: 1%;
-            }
-
             html, body {
                 width: 100%;
                 height: 100%;
                 padding: 0;
                 margin: 0;
                 overflow: hidden;
-            }
-
-            html.is-locked,
-            html.is-locked body {
-                overflow: hidden;
-                position: relative;
-                height: 100dvh;
-                overscroll-behavior: none;
-            }
-
-            .holder {
-                position: fixed;
-                left: 0;
-                top: 0;
-                width: 100%;
-                height: min(calc(var(--isl-vh) * 100), 100%);
-                overflow: hidden;
-                z-index: 1;
-            }
-
-            html.is-locked .holder {
-                z-index: 2147483646;
-            }
-
-            .scroller {
-                display: block;
-                width: 100%;
-                height: 100%;
-                overflow-x: hidden;
-                overflow-y: auto;
-                overscroll-behavior: none;
-                scrollbar-width: none;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .scroller-inner {
-                display: flex;
-                justify-content: flex-start;
-                align-items: stretch;
-                flex-direction: column;
-                height: calc(100% + 1px);
-                min-height: calc(100% + 1px);
-            }
-
-            .content {
-                display: flex;
-                justify-content: flex-start;
-                align-items: stretch;
-                flex-direction: column;
-                position: sticky;
-                width: 100%;
-                height: calc(100% - 1px);
-                top: 0;
-                bottom: 0;
             }
 
             .fullscreen-canvas {
@@ -85,128 +27,10 @@
                 left: 0;
                 touch-action: none;
             }
-
-            .overlay {
-                position: fixed;
-                inset: 0;
-                display: none;
-                align-items: flex-start;
-                justify-content: center;
-                padding: 12px env(safe-area-inset-right) 0 env(safe-area-inset-left);
-                z-index: 2147483647;
-                pointer-events: none;
-            }
-
-            .overlay.is-visible {
-                display: flex;
-            }
-
-            .bubble {
-                max-width: 80vw;
-                backdrop-filter: blur(8px);
-                background: rgba(0, 0, 0, 0.5);
-                color: #fff;
-                border-radius: 96px;
-                padding: 12px;
-                font-size: 14px;
-                pointer-events: auto;
-            }
-
-            .spacer {
-                display: none;
-                width: 1px;
-                height: 2000vh;
-            }
-
-            .spacer.is-visible {
-                display: block;
-            }
         </style>
     </head>
     <body>
-        <div class="holder">
-            <div class="scroller">
-                <div class="scroller-inner">
-                    <div class="content" id="game-content">
-                        <canvas id="canvas" class="fullscreen-canvas"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="overlay">
-            <div class="bubble">Scroll down a bit to hide the browser bars and enjoy the full screen</div>
-        </div>
-        <div class="spacer"></div>
+        <canvas id="canvas" class="fullscreen-canvas"></canvas>
         <script src="./playgama-bridge-unity.js"></script>
-        <script>
-            (function () {
-                var overlay = document.querySelector('.overlay');
-                var spacer = document.querySelector('.spacer');
-                var gameCanvas = document.getElementById('canvas');
-                var gameContent = document.getElementById('game-content');
-                var tabsOpen = false;
-                var rafId = null;
-
-                function measure() {
-                    if (rafId !== null) {
-                        cancelAnimationFrame(rafId);
-                    }
-
-                    rafId = requestAnimationFrame(function () {
-                        document.documentElement.style.setProperty('--isl-vh', (window.innerHeight * 0.01) + 'px');
-
-                        var screenShort = Math.min(window.screen.width, window.screen.height);
-                        var viewport = window.visualViewport;
-                        var MOBILE_CHROME_TOP_BAR_HEIGHT = 20;
-                        var open = !!viewport && viewport.height + viewport.offsetTop < screenShort - MOBILE_CHROME_TOP_BAR_HEIGHT;
-
-                        if (open === tabsOpen) {
-                            return;
-                        }
-
-                        tabsOpen = open;
-
-                        window.setTimeout(function () {
-                            document.documentElement.classList.toggle('is-locked', !open);
-                            overlay.classList.toggle('is-visible', open);
-                            spacer.classList.toggle('is-visible', open);
-
-                            if (!open) {
-                                gameContent.appendChild(gameCanvas);
-                            } else {
-                                document.body.appendChild(gameCanvas);
-                            }
-
-                            Object.assign(gameCanvas.style, {
-                                position: open ? 'fixed' : 'absolute',
-                                inset: open ? '0' : 'auto',
-                                top: open ? '0' : '0',
-                                left: open ? '0' : '0',
-                                height: open ? '100dvh' : '100%',
-                                width: open ? '100vw' : '100%'
-                            });
-                        }, open ? 0 : 100);
-                    });
-                }
-
-                function initSafariTabsHider() {
-                    if (!window.navigator.userAgent.match(/(iPhone|iPad|iPod)/)) {
-                        return;
-                    }
-
-                    measure();
-                    window.addEventListener('resize', measure, { passive: true });
-                    window.addEventListener('orientationchange', measure, { passive: true });
-                    window.addEventListener('scroll', measure, { passive: true });
-
-                    if (window.visualViewport) {
-                        window.visualViewport.addEventListener('resize', measure, { passive: true });
-                        window.visualViewport.addEventListener('scroll', measure, { passive: true });
-                    }
-                }
-
-                initSafariTabsHider();
-            })();
-        </script>
     </body>
 </html>
