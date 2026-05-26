@@ -143,9 +143,9 @@ function initializeBridge() {
                     if (nativeSdk && typeof nativeSdk.subscribe === 'function') {
                         nativeSdk.subscribe(function (event) {
                             if (event.detail.type === 'VKWebAppViewHide')
-                                sendMessageToUnity('OnVisibilityStateChanged', 'hidden');
+                                sendHidden();
                             else if (event.detail.type === 'VKWebAppViewRestore')
-                                sendMessageToUnity('OnVisibilityStateChanged', 'visible');
+                                sendVisibleDelayed();
                         });
                         console.log('[Sender] VK Bridge subscribed via bridge.platform.sdk');
                     } else {
@@ -153,9 +153,9 @@ function initializeBridge() {
                         if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.subscribe === 'function') {
                             window.vkBridge.subscribe(function (event) {
                                 if (event.detail.type === 'VKWebAppViewHide')
-                                    sendMessageToUnity('OnVisibilityStateChanged', 'hidden');
+                                    sendHidden();
                                 else if (event.detail.type === 'VKWebAppViewRestore')
-                                    sendMessageToUnity('OnVisibilityStateChanged', 'visible');
+                                    sendVisibleDelayed();
                             });
                             console.log('[Sender] VK Bridge subscribed via window.vkBridge (fallback)');
                         } else {
@@ -168,20 +168,67 @@ function initializeBridge() {
             }
             subscribeVKBridge();
 
+            // VK: расширить приложение на весь экран (убрать панель VK сверху/снизу)
+            function expandVKApp() {
+                function doExpand(sdk) {
+                    if (sdk && typeof sdk.send === 'function') {
+                        sdk.send("VKWebAppExpand", {});
+                        console.log('[Sender] VKWebAppExpand called');
+                        return true;
+                    }
+                    return false;
+                }
+                var sdk = (bridge && bridge.platform && bridge.platform.sdk) || window.vkBridge;
+                doExpand(sdk);
+            }
+            expandVKApp();
+
             // DOM fallback для платформ без VK Bridge
-            function onViewHide() {
-                sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
+            var _lastHiddenTime = 0;
+            var _visibleTimeout = null;
+
+            function sendHidden() {
+                if (_visibleTimeout) {
+                    clearTimeout(_visibleTimeout);
+                    _visibleTimeout = null;
+                }
+                _lastHiddenTime = Date.now();
+                sendMessageToUnity('OnVisibilityStateChanged', 'hidden');
             }
-            function onViewShow() {
-                sendMessageToUnity('OnVisibilityStateChanged', 'visible')
+
+            function sendVisibleDelayed() {
+                if (_visibleTimeout) {
+                    clearTimeout(_visibleTimeout);
+                    _visibleTimeout = null;
+                }
+                // Если 'hidden' было недавно — задержка, чтобы Unity обработал порядок сообщений
+                if (Date.now() - _lastHiddenTime < 500) {
+                    _visibleTimeout = setTimeout(function() {
+                        sendMessageToUnity('OnVisibilityStateChanged', 'visible');
+                        _visibleTimeout = null;
+                    }, 300);
+                } else {
+                    sendMessageToUnity('OnVisibilityStateChanged', 'visible');
+                }
             }
+
+            function onViewHide() { sendHidden(); }
+            function onViewShow() { sendVisibleDelayed(); }
 
             if (typeof document !== 'undefined') {
                 document.addEventListener('visibilitychange', function () {
-                    sendMessageToUnity('OnVisibilityStateChanged', document.hidden ? 'hidden' : 'visible');
+                    if (document.hidden) {
+                        sendHidden();
+                    } else {
+                        sendVisibleDelayed();
+                    }
                 });
                 document.addEventListener('webkitvisibilitychange', function () {
-                    sendMessageToUnity('OnVisibilityStateChanged', document.webkitHidden ? 'hidden' : 'visible');
+                    if (document.webkitHidden) {
+                        sendHidden();
+                    } else {
+                        sendVisibleDelayed();
+                    }
                 });
             }
             window.addEventListener('pagehide', onViewHide)
@@ -189,15 +236,25 @@ function initializeBridge() {
             window.addEventListener('blur', onViewHide)
             window.addEventListener('focus', onViewShow)
 
+            // Android Chrome: Page Lifecycle API — срабатывает до заморозки
+            if (typeof document !== 'undefined') {
+                document.addEventListener('freeze', function() {
+                    sendHidden();
+                });
+                document.addEventListener('resume', function() {
+                    sendVisibleDelayed();
+                });
+            }
+
             let unityLoader = document.createElement('script')
             unityLoader.src = 'Build/6a2709e130029cc8690341cf14d94fd1.loader.js'
             unityLoader.onload = () => {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/57411b94f2aaaa624d4ce4892f6ec466.data.unityweb',
-                        frameworkUrl: 'Build/8ad4694e365f6313b87d417912b98cd8.framework.js.unityweb',
-                        codeUrl: 'Build/01d96cf0952222fad0cab4d8efb30df1.wasm.unityweb',
+                        dataUrl: 'Build/cb4eb78017ea8816a01d4432aa48a925.data.unityweb',
+                        frameworkUrl: 'Build/ccc0c9aa1883206a71b89a97be375ffe.framework.js.unityweb',
+                        codeUrl: 'Build/8b73fd1295296da81579f7820d6a6ac0.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',
@@ -211,17 +268,15 @@ function initializeBridge() {
                         CANVAS.focus()
                         flushMessageQueue()
 
-                        // Fullscreen button: show on mobile
-                        var fsBtn = document.getElementById('fullscreen-btn')
-                        if (fsBtn && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                            fsBtn.classList.remove('hidden')
-                            fsBtn.addEventListener('click', function() {
-                                window.requestFullscreenMode()
-                            })
-                            fsBtn.addEventListener('touchend', function(e) {
-                                e.preventDefault()
-                                window.requestFullscreenMode()
-                            })
+                        // Safari iOS: подстраиваем canvas под видимую область (без хрома)
+                        if (window.visualViewport) {
+                            function resizeToViewport() {
+                                CANVAS.style.width = visualViewport.width + 'px';
+                                CANVAS.style.height = visualViewport.height + 'px';
+                            }
+                            visualViewport.addEventListener('resize', resizeToViewport);
+                            visualViewport.addEventListener('scroll', resizeToViewport);
+                            resizeToViewport();
                         }
                     })
                     .catch((error) => {
@@ -474,17 +529,19 @@ window.deleteStorageData = function(key, storageType) {
 }
 
 
-// fullscreen
-window.requestFullscreenMode = function() {
-    var el = document.documentElement || document.getElementById('canvas');
-    if (el.requestFullscreen) {
-        el.requestFullscreen();
-    } else if (el.webkitRequestFullscreen) {
-        el.webkitRequestFullscreen();
-    } else if (el.webkitEnterFullscreen) {
-        el.webkitEnterFullscreen();
+// VK: экспорт для вызова из C#
+window.expandVKApp = function() {
+    function doExpand(sdk) {
+        if (sdk && typeof sdk.send === 'function') {
+            sdk.send("VKWebAppExpand", {});
+            return true;
+        }
+        return false;
     }
+    var sdk = (window.bridge && bridge.platform && bridge.platform.sdk) || window.vkBridge;
+    doExpand(sdk);
 }
+
 
 // advertisement
 window.getInterstitialState = function() {
