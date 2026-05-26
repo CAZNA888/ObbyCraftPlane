@@ -43,24 +43,6 @@
                 }
             ]
         },
-        "advancedBanners": {
-            "placementFallback": "gameplay_stopped",
-            "gameplay_started": {
-                "action": "hide"
-            },
-            "gameplay_stopped": {
-                "action": "show",
-                "default": [
-                    { "width": "100%", "height": "8%", "top": "0", "left": "0" }
-                ],
-                "mobile:portrait": [
-                    { "width": "100%", "height": "10%", "top": "0", "left": "0" }
-                ],
-                "desktop:landscape": [
-                    { "width": "60%", "height": "10%", "top": "0", "left": "20%" }
-                ]
-            }
-        },
         "useBuiltInErrorPopup": true,
         "backfillId": "",
         "minimumDelayBetweenInterstitial": 60000

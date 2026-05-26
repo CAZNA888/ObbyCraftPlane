@@ -3,11 +3,14 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, minimal-ui">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="mobile-web-app-capable" content="yes">
         <title>Build Your Plane</title>
         <link rel="preconnect" href="https://bridge.playgama.com">
-        <link rel="preload" href="Build/f45ccb34f843d1fcae208501b775ce7d.wasm.unityweb" as="fetch" type="application/wasm" crossorigin>
-        <link rel="preload" href="Build/bfa6bbf2ae36b37a2d5a83ed5b731ba3.data.unityweb" as="fetch" crossorigin>
+        <link rel="preload" href="Build/01d96cf0952222fad0cab4d8efb30df1.wasm.unityweb" as="fetch" type="application/wasm" crossorigin>
+        <link rel="preload" href="Build/57411b94f2aaaa624d4ce4892f6ec466.data.unityweb" as="fetch" crossorigin>
         <link rel="preload" href="Build/8ad4694e365f6313b87d417912b98cd8.framework.js.unityweb" as="script">
         <style>
             html, body {
@@ -27,10 +30,45 @@
                 left: 0;
                 touch-action: none;
             }
+
+            #fullscreen-btn {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 48px;
+                height: 48px;
+                background: rgba(0,0,0,0.5);
+                border: 2px solid rgba(255,255,255,0.3);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                z-index: 9999;
+                touch-action: manipulation;
+                transition: opacity 0.3s;
+                opacity: 0.7;
+            }
+            #fullscreen-btn:hover { opacity: 1; }
+            #fullscreen-btn svg {
+                width: 28px;
+                height: 28px;
+                fill: none;
+                stroke: rgba(255,255,255,0.9);
+                stroke-width: 2;
+                stroke-linecap: round;
+                stroke-linejoin: round;
+            }
+            #fullscreen-btn.hidden { display: none; }
         </style>
     </head>
     <body>
         <canvas id="canvas" class="fullscreen-canvas"></canvas>
-        <script src="./playgama-bridge-unity.js"></script>
+        <button id="fullscreen-btn" class="hidden" aria-label="Fullscreen">
+            <svg viewBox="0 0 24 24">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+        </button>
+        <script src="./Sender.js"></script>
     </body>
 </html>
