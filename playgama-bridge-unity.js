@@ -171,12 +171,12 @@ function initializeBridge() {
             window.addEventListener('focus', onViewShow)
 
             let unityLoader = document.createElement('script')
-            unityLoader.src = 'Build/78ecadbccbf419d31f18362248ca1676.loader.js'
+            unityLoader.src = 'Build/6a2709e130029cc8690341cf14d94fd1.loader.js'
             unityLoader.onload = () => {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/1908603603d29262bec7e0f051ed9f3a.data.unityweb',
+                        dataUrl: 'Build/fa822fb28a58c3dbb6dc44f0231fde88.data.unityweb',
                         frameworkUrl: 'Build/8ad4694e365f6313b87d417912b98cd8.framework.js.unityweb',
                         codeUrl: 'Build/f45ccb34f843d1fcae208501b775ce7d.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
