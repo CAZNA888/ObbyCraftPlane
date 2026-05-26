@@ -135,59 +135,35 @@ function initializeBridge() {
             bridge.platform.on('audio_state_changed', isEnabled => sendMessageToUnity('OnAudioStateChanged', isEnabled.toString()))
             bridge.platform.on('pause_state_changed', isPaused => sendMessageToUnity('OnPauseStateChanged', isPaused.toString()))
 
-            // iOS / Mobile: fallback для событий потери видимости (app switcher, сворачивание)
-            // VKWebAppViewHide / VKWebAppViewRestore приходят через VK Bridge SDK,
-            // но Playgama не всегда транслирует их через visibility_state_changed в C#.
-            // DOM events (visibilitychange, pagehide, pageshow) также не всегда работают на iOS WKWebView.
-            // Поэтому добавляем принудительный fallback: вызываем VK Bridge напрямую.
-            function onViewHide() {
-                // Пытаемся через VK Bridge — Playgama SDK подписан на его события
-                if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
-                    window.vkBridge.send('VKWebAppViewHide')
-                } else {
-                    // Если VK Bridge недоступен — используем прямой DOM fallback через SendMessage
-                    sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
+            // iOS / Mobile VK: прямая подписка на VK Bridge события VKWebAppViewHide / VKWebAppViewRestore
+            // Это единственный надёжный способ поймать сворачивание в app switcher на мобильных.
+            function subscribeVKBridge() {
+                if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.subscribe === 'function') {
+                    window.vkBridge.subscribe(function (event) {
+                        if (event.detail.type === 'VKWebAppViewHide')
+                            sendMessageToUnity('OnVisibilityStateChanged', 'hidden');
+                        else if (event.detail.type === 'VKWebAppViewRestore')
+                            sendMessageToUnity('OnVisibilityStateChanged', 'visible');
+                    });
                 }
             }
+            subscribeVKBridge();
+
+            // DOM fallback для платформ без VK Bridge
+            function onViewHide() {
+                sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
+            }
             function onViewShow() {
-                if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
-                    window.vkBridge.send('VKWebAppViewRestore')
-                } else {
-                    sendMessageToUnity('OnVisibilityStateChanged', 'visible')
-                }
+                sendMessageToUnity('OnVisibilityStateChanged', 'visible')
             }
 
             if (typeof document !== 'undefined') {
                 document.addEventListener('visibilitychange', function () {
-                    if (document.hidden) {
-                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
-                            window.vkBridge.send('VKWebAppViewHide')
-                        } else {
-                            sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
-                        }
-                    } else {
-                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
-                            window.vkBridge.send('VKWebAppViewRestore')
-                        } else {
-                            sendMessageToUnity('OnVisibilityStateChanged', 'visible')
-                        }
-                    }
-                })
+                    sendMessageToUnity('OnVisibilityStateChanged', document.hidden ? 'hidden' : 'visible');
+                });
                 document.addEventListener('webkitvisibilitychange', function () {
-                    if (document.webkitHidden) {
-                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
-                            window.vkBridge.send('VKWebAppViewHide')
-                        } else {
-                            sendMessageToUnity('OnVisibilityStateChanged', 'hidden')
-                        }
-                    } else {
-                        if (typeof window.vkBridge !== 'undefined' && window.vkBridge && typeof window.vkBridge.send === 'function') {
-                            window.vkBridge.send('VKWebAppViewRestore')
-                        } else {
-                            sendMessageToUnity('OnVisibilityStateChanged', 'visible')
-                        }
-                    }
-                })
+                    sendMessageToUnity('OnVisibilityStateChanged', document.webkitHidden ? 'hidden' : 'visible');
+                });
             }
             window.addEventListener('pagehide', onViewHide)
             window.addEventListener('pageshow', onViewShow)
@@ -200,9 +176,9 @@ function initializeBridge() {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/ad1bd6a0926b1d9e306dddaa1567fe87.data.unityweb',
-                        frameworkUrl: 'Build/7f15632f49e10d5986db7ef6bb8b4783.framework.js.unityweb',
-                        codeUrl: 'Build/a14d6623cf856feb1bf08828691f2388.wasm.unityweb',
+                        dataUrl: 'Build/1908603603d29262bec7e0f051ed9f3a.data.unityweb',
+                        frameworkUrl: 'Build/8ad4694e365f6313b87d417912b98cd8.framework.js.unityweb',
+                        codeUrl: 'Build/f45ccb34f843d1fcae208501b775ce7d.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',
