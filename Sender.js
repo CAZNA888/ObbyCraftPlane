@@ -197,6 +197,9 @@ function initializeBridge() {
             }
 
             function sendVisibleDelayed() {
+                // Если документ всё ещё скрыт — не отправляем visible (защита от ложных событий при возврате)
+                if (typeof document !== 'undefined' && document.hidden) return;
+
                 if (_visibleTimeout) {
                     clearTimeout(_visibleTimeout);
                     _visibleTimeout = null;
@@ -252,9 +255,9 @@ function initializeBridge() {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/cb4eb78017ea8816a01d4432aa48a925.data.unityweb',
-                        frameworkUrl: 'Build/ccc0c9aa1883206a71b89a97be375ffe.framework.js.unityweb',
-                        codeUrl: 'Build/8b73fd1295296da81579f7820d6a6ac0.wasm.unityweb',
+                        dataUrl: 'Build/ae6336f57479b891994f57d54904f10e.data.unityweb',
+                        frameworkUrl: 'Build/64be0765543d9ee19599bdbd83e60143.framework.js.unityweb',
+                        codeUrl: 'Build/b65ce813bf6e46325e01917308bd6ecb.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',
@@ -268,16 +271,9 @@ function initializeBridge() {
                         CANVAS.focus()
                         flushMessageQueue()
 
-                        // Safari iOS: подстраиваем canvas под видимую область (без хрома)
-                        if (window.visualViewport) {
-                            function resizeToViewport() {
-                                CANVAS.style.width = visualViewport.width + 'px';
-                                CANVAS.style.height = visualViewport.height + 'px';
-                            }
-                            visualViewport.addEventListener('resize', resizeToViewport);
-                            visualViewport.addEventListener('scroll', resizeToViewport);
-                            resizeToViewport();
-                        }
+                        // iOS: canvas уже растянут через 100dvh + viewport-fit=cover в index.html
+                        // visualViewport resize делал canvas меньше экрана (исключал safe area),
+                        // что вызывало чёрные полосы и ломало координаты касаний
                     })
                     .catch((error) => {
                         console.error(error)
