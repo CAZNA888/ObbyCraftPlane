@@ -249,15 +249,23 @@ function initializeBridge() {
                 });
             }
 
+            // Отключаем Media Session, чтобы убрать системный плеер на десктопе и уведомления на мобильных
+            if (navigator.mediaSession) {
+                Object.defineProperty(navigator, 'mediaSession', {
+                    get: function() { return null; },
+                    set: function() {}
+                });
+            }
+
             let unityLoader = document.createElement('script')
             unityLoader.src = 'Build/6a2709e130029cc8690341cf14d94fd1.loader.js'
             unityLoader.onload = () => {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/fbc976829325ccd2a183c3a120e828a4.data.unityweb',
-                        frameworkUrl: 'Build/b76fd61e385f6f3c6b0a79699293fd72.framework.js.unityweb',
-                        codeUrl: 'Build/1a5c99a3daf760964d478407e01b3b75.wasm.unityweb',
+                        dataUrl: 'Build/d5c598ab0a815ca0a845272fa4d1b739.data.unityweb',
+                        frameworkUrl: 'Build/4b872c2e72439d594c1d68efe0140623.framework.js.unityweb',
+                        codeUrl: 'Build/6a6f451ac9da7fd08c134b3d9b63820e.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',
