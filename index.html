@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, minimal-ui">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="mobile-web-app-capable" content="yes">
+        <title>Build Your Plane</title>
+        <link rel="preconnect" href="https://bridge.playgama.com">
+        <link rel="preload" href="Build/6a6f451ac9da7fd08c134b3d9b63820e.wasm.unityweb" as="fetch" type="application/wasm" crossorigin>
+        <link rel="preload" href="Build/d5c598ab0a815ca0a845272fa4d1b739.data.unityweb" as="fetch" crossorigin>
+        <link rel="preload" href="Build/4b872c2e72439d594c1d68efe0140623.framework.js.unityweb" as="script">
+        <style>
+            html, body {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            .fullscreen-canvas {
+                background: #242424;
+                width: 100%;
+                height: 100dvh;
+                position: absolute;
+                top: 0;
+                left: 0;
+                touch-action: none;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvas" class="fullscreen-canvas"></canvas>
+        <script src="./Sender.js"></script>
+    </body>
+</html>

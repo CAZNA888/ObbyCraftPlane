@@ -1,0 +1,107 @@
+{
+    "$schema": "https://bridge.playgama.com/v1/stable/schema.json",
+    "advertisement": {
+        "interstitial": {
+            "preloadOnStart": true,
+            "placementFallback": "interstitial_default",
+            "placements": [
+                {
+                    "id": "interstitial_default",
+                    "playgama": "interstitial_default",
+                    "yandex": "interstitial_default",
+                    "msn": "interstitial_default",
+                    "crazy_games": "interstitial_default",
+                    "game_distribution": "interstitial_default"
+                }
+            ]
+        },
+        "rewarded": {
+            "preloadOnStart": true,
+            "placementFallback": "rewarded_default",
+            "placements": [
+                {
+                    "id": "rewarded_default",
+                    "playgama": "rewarded_default",
+                    "yandex": "rewarded_default",
+                    "msn": "rewarded_default",
+                    "crazy_games": "rewarded_default",
+                    "game_distribution": "rewarded_default"
+                }
+            ]
+        },
+        "banner": {
+            "preloadOnStart": true,
+            "placementFallback": "banner_default",
+            "placements": [
+                {
+                    "id": "banner_default",
+                    "playgama": "banner_default",
+                    "yandex": "banner_default",
+                    "msn": "banner_default",
+                    "crazy_games": "banner_default",
+                    "game_distribution": "banner_default"
+                }
+            ]
+        },
+        "useBuiltInErrorPopup": true,
+        "backfillId": "",
+        "minimumDelayBetweenInterstitial": 60000
+    },
+    "payments": [
+        {
+            "id": "1",
+            "playgama": { "amount": 20 },
+            "yandex": { "id": "1" }
+        },
+        {
+            "id": "2",
+            "playgama": { "amount": 90 },
+            "yandex": { "id": "2" }
+        },
+        {
+            "id": "3",
+            "playgama": { "amount": 250 },
+            "yandex": { "id": "3" }
+        },
+        {
+            "id": "4",
+            "playgama": { "amount": 500 },
+            "yandex": { "id": "4" }
+        },
+        {
+            "id": "5",
+            "playgama": { "amount": 2000 },
+            "yandex": { "id": "5" }
+        },
+        {
+            "id": "6",
+            "playgama": { "amount": 100 },
+            "yandex": { "id": "6" }
+        },
+        {
+            "id": "7",
+            "playgama": { "amount": 20 },
+            "yandex": { "id": "7" }
+        },
+        {
+            "id": "8",
+            "playgama": { "amount": 20 },
+            "yandex": { "id": "8" }
+        }
+    ],
+    "leaderboards": [
+        {
+            "id": "distance",
+            "isMain": true,
+            "yandex": "distance",
+            "msn": "distance",
+            "y8": "distance",
+            "lagged": "distance",
+            "youtube": "distance"
+        }
+    ],
+    "device": {
+        "supportedOrientations": ["landscape"]
+    },
+    "sendAnalyticsEvents": true
+}
