@@ -263,9 +263,9 @@ function initializeBridge() {
                 createUnityInstance(
                     CANVAS,
                     {
-                        dataUrl: 'Build/d5c598ab0a815ca0a845272fa4d1b739.data.unityweb',
-                        frameworkUrl: 'Build/4b872c2e72439d594c1d68efe0140623.framework.js.unityweb',
-                        codeUrl: 'Build/6a6f451ac9da7fd08c134b3d9b63820e.wasm.unityweb',
+                        dataUrl: 'Build/b182d1a08ecb86d7eaaa44f7cfcd7602.data.unityweb',
+                        frameworkUrl: 'Build/eb209394b279ebf64d30b91048060ff7.framework.js.unityweb',
+                        codeUrl: 'Build/10e7c5e92a296a24e29b9f2eda348fb2.wasm.unityweb',
                         streamingAssetsUrl: 'StreamingAssets',
                         companyName: 'Velour Games',
                         productName: 'Build Your Plane',
